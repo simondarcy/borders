@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive: Can you draw the Irish border?</title>
+    <script type="text/javascript" src="phaser.min.js"></script>
+    <style type="text/css">
+        body, html{
+          padding:0;
+          margin:0;
+            background: #9ec7f3;
+        }
+        canvas{
+            margin: auto;
+
+        }
+        #game{
+            max-width: 800px;
+            max-height: 600px;
+        }
+    </style>
+
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Tubridy's Toys">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
+
+</head>
+<body>
+
+
+<div id="game"></div>
+<script>
+
+    points = [
+        [527.5, 289]
+        ,[476.5, 218]
+    ,[437.5, 274]
+    ,[426.5, 103]
+    ,[369.5, 154]
+    ,[348.5, 195]
+    ,[362.5, 244]
+    ,[504.5, 255]
+    ,[401.5, 270]
+    ,[410.5, 142]
+    ];
+
+
+    //max width height
+
+    var game = new Phaser.Game(700, 800, Phaser.AUTO, 'game', { preload: preload, create: create, update:update,render:render });
+    var isDown = false;
+    var pc = 0;
+    var canDraw = true;
+    var slip = 0;
+
+
+    function draw(){
+
+
+        console.log(game.input.mousePointer.x)
+
+        //pen = game.add.sprite(game.input.mousePointer.x, game.input.mousePointer.y, 'point');
+
+        var graphics = game.add.graphics(0, 0);
+        graphics.beginFill(0x000000, 1);
+        graphics.drawCircle(game.input.x, game.input.y, 10);
+    }
+    function preload(){
+
+
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+
+        game.load.image("ireland", "ireland-1.png");
+        game.load.image("irelandBorder", "ireland-border.png");
+        game.load.image("point", "point.png");
+        game.load.image("submit", "submit.png");
+
+    }
+    function create() {
+
+        game.input.addPointer();
+
+        game.stage.backgroundColor = "#9ec7f3";
+        game.input.onDown.add(mouseDown, this);
+        game.input.onTap.add(mouseDown, this);
+        game.input.onUp.add(mouseUp, this);
+        map = game.add.sprite(0, 0,"ireland");
+        map.width = game.width;
+        map.height = game.height;
+
+        solution = game.add.sprite(0, 0,"irelandBorder");
+        solution.alpha = 0;
+        solution.width = game.width;
+        solution.height = game.height;
+
+        submit = game.add.button(20, 60, "submit");
+        submit.alpha = 0;
+        submit.scale.set(0.3);
+        submit.anchor.set(0);
+        submit.onInputUp.add(function(){
+            check();
+        });
+        submit.onInputDown.add(function(){
+            canDraw =  false;
+        });
+
+
+
+
+
+        textStyle = {
+            font: "20px arial black", fill: "#ffffff", align:'center', boundsAlignH: "center",  boundsAlignV: "middle"
+        };
+
+        scoreText = game.add.text( 20, 20, "Can you draw the Irish border?", textStyle);
+
+
+
+
+        game.input.addMoveCallback(p, this);
+
+
+        pointsGroup = game.add.group();
+        pointsGroup.inputEnableChildren = true;
+
+        for(var i = 0;i<points.length;i++){
+            point = game.add.sprite(points[i][0], points[i][1], 'point');
+            point.anchor.set(0.5);
+            point.alpha = 0;
+            pointsGroup.add(point);
+
+
+        }
+
+
+    }
+
+    function pointHit(sprite){
+        sprite.destroy();
+        pc+=10;
+
+    }
+    function check(){
+
+        solution.alpha = 1;
+
+        solution.x = 0;
+        solution.y = 0;
+
+        fill = "#00f92b";
+
+        if(pc<50){
+            fill = "#FF0000";
+        }
+
+        textStyle = {
+            font: "50px arial black", fill: fill, align:'center', boundsAlignH: "center",  boundsAlignV: "middle"
+        };
+
+        scoreText = game.add.text( game.width/1.7, game.height/2-100, (pc-slip)+"%", textStyle);
+        scoreText.anchor.set(0.5, 0);
+
+
+        game.input.onTap.add(function () {
+            location.reload();
+        });
+
+    }
+    function mouseDown(pointer){
+        submit.alpha = 1;
+        isDown = true;
+
+    }
+    function mouseUp(){
+        isDown = false;
+    }
+    function p(){
+
+    }
+
+    function update(){
+
+
+
+        pointsGroup.forEach(function(item) {
+
+
+            if (item.input.pointerOver())
+            {
+                pointHit(item);
+            }
+
+
+        });
+
+
+
+        if( isDown && canDraw ) {
+            draw();
+
+            if(game.input.mousePointer.y > (game.height / 2.5)){
+                slip = "10";
+                console.log("too far");
+            }
+        }
+        if (point.input.pointerOver())
+        {
+            console.log("HIT a POint + 10 %");
+        }
+
+    }
+    function render(){
+        //game.debug.pointer(game.input.mousePointer);
+    }
+
+
+</script>
+
+</body>
+</html>
