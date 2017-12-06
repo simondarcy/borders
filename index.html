@@ -59,23 +59,8 @@
     var canDraw = true;
     var slip = 0;
 
-
-    function draw(){
-
-
-        console.log(game.input.mousePointer.x)
-
-        //pen = game.add.sprite(game.input.mousePointer.x, game.input.mousePointer.y, 'point');
-
-        var graphics = game.add.graphics(0, 0);
-        graphics.beginFill(0x000000, 1);
-        graphics.drawCircle(game.input.x, game.input.y, 10);
-    }
     function preload(){
-
-
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-
         game.load.image("ireland", "ireland-1.png");
         game.load.image("irelandBorder", "ireland-border.png");
         game.load.image("point", "point.png");
@@ -85,7 +70,6 @@
     function create() {
 
         game.input.addPointer();
-
         game.stage.backgroundColor = "#9ec7f3";
         game.input.onDown.add(mouseDown, this);
         game.input.onTap.add(mouseDown, this);
@@ -106,13 +90,10 @@
         submit.onInputUp.add(function(){
             check();
         });
+
         submit.onInputDown.add(function(){
             canDraw =  false;
         });
-
-
-
-
 
         textStyle = {
             font: "20px arial black", fill: "#ffffff", align:'center', boundsAlignH: "center",  boundsAlignV: "middle"
@@ -120,59 +101,51 @@
 
         scoreText = game.add.text( 20, 20, "Can you draw the Irish border?", textStyle);
 
-
-
-
-        game.input.addMoveCallback(p, this);
-
-
+        //Create points
         pointsGroup = game.add.group();
         pointsGroup.inputEnableChildren = true;
-
         for(var i = 0;i<points.length;i++){
             point = game.add.sprite(points[i][0], points[i][1], 'point');
             point.anchor.set(0.5);
             point.alpha = 0;
             pointsGroup.add(point);
-
-
         }
 
 
     }
-
+    //If the uer hits a specfic point
     function pointHit(sprite){
         sprite.destroy();
         pc+=10;
-
     }
+    //Draw the line
+    function draw(){
+        var graphics = game.add.graphics(0, 0);
+        graphics.beginFill(0x000000, 1);
+        graphics.drawCircle(game.input.x, game.input.y, 10);
+    }
+    //Calculate and Show result
     function check(){
 
         solution.alpha = 1;
-
         solution.x = 0;
         solution.y = 0;
-
         fill = "#00f92b";
-
         if(pc<50){
             fill = "#FF0000";
         }
-
         textStyle = {
             font: "50px arial black", fill: fill, align:'center', boundsAlignH: "center",  boundsAlignV: "middle"
         };
-
         scoreText = game.add.text( game.width/1.7, game.height/2-100, (pc-slip)+"%", textStyle);
         scoreText.anchor.set(0.5, 0);
-
-
         game.input.onTap.add(function () {
             location.reload();
         });
 
     }
     function mouseDown(pointer){
+        //show submit
         submit.alpha = 1;
         isDown = true;
 
@@ -180,40 +153,26 @@
     function mouseUp(){
         isDown = false;
     }
-    function p(){
-
-    }
 
     function update(){
 
-
-
+        //Check if the user has hit any of the points
         pointsGroup.forEach(function(item) {
-
-
             if (item.input.pointerOver())
             {
                 pointHit(item);
             }
-
-
         });
 
-
-
+        //Enable drawing
         if( isDown && canDraw ) {
             draw();
-
+            //If they go to far down, lower their score, they could potentially get 100%  by be too low
             if(game.input.mousePointer.y > (game.height / 2.5)){
                 slip = "10";
                 console.log("too far");
             }
         }
-        if (point.input.pointerOver())
-        {
-            console.log("HIT a POint + 10 %");
-        }
-
     }
     function render(){
         //game.debug.pointer(game.input.mousePointer);
